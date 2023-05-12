@@ -14,3 +14,10 @@
 
 ## Read Quran form [Quran.com](https://quran.com/)
 
+## To run Run
+```bash
+go run .
+```
+it will run at port 8000
+http://localhost:8000
+
