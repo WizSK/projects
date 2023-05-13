@@ -5,25 +5,32 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"text/template"
 
 	"github.com/gin-gonic/gin"
 )
 
-/*
-verses
-	Translations
-
-text_uthmani
-verse_key
-id
-*/
+// Cashing thing..
+var SurahCash = make(map[string][]byte)
 
 func getSurah(c *gin.Context) {
 	idx := c.Param("id")
 
+	id, err := strconv.Atoi(idx)
+	if err != nil || id < 1 || id > 144 {
+		c.Writer.Write([]byte("<h1>Page not found surah number is wrong</h1>"))
+		return
+	}
+
+	if _, ok := SurahCash[idx]; ok {
+		c.Writer.Write(SurahCash[idx])
+		return
+	}
+
 	surahArabic, err := os.Open("static/json/arabic/" + idx + ".json")
 	if err != nil {
+		c.Writer.Write([]byte("Page Not found"))
 		fmt.Println(err)
 		return
 	}
@@ -32,6 +39,7 @@ func getSurah(c *gin.Context) {
 	surahInfo, err := os.Open("static/json/chapters/" + idx + ".json")
 
 	if err != nil {
+		c.Writer.Write([]byte("Page Not found"))
 		fmt.Println(err)
 		return
 	}
@@ -40,6 +48,7 @@ func getSurah(c *gin.Context) {
 	surahEnlish, err := os.Open("static/json/english/" + idx + ".json")
 
 	if err != nil {
+		c.Writer.Write([]byte("Page Not found"))
 		fmt.Println(err)
 		return
 	}
@@ -87,5 +96,9 @@ func getSurah(c *gin.Context) {
 
 	surahBuff := new(bytes.Buffer)
 	surahTemplate.Execute(surahBuff, all)
+
+	// Chashing
+	SurahCash[idx] = surahBuff.Bytes()
+
 	c.Writer.Write(surahBuff.Bytes())
 }

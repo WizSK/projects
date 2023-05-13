@@ -1,4 +1,4 @@
-module github.com/sakibulxyz/quran
+module github.com/WizSK/Quran-server
 
 go 1.20
 
